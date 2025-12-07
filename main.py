@@ -18,8 +18,8 @@ async def on_message(message):
     if message.author == bot.user:
         return
     
-    # Check if the message is "ゆーまおさん"
-    if message.content == 'ゆーまおさん':
+    # Check if the message is "ゆーまおさん" (strip whitespace)
+    if message.content.strip() == 'ゆーまおさん':
         await message.channel.send('ゆーまおだよ')
     
     # Process commands
@@ -29,11 +29,20 @@ def main():
     # Get token from environment variable
     token = os.getenv('DISCORD_BOT_TOKEN')
     if not token:
-        print('Error: DISCORD_BOT_TOKEN environment variable is not set')
-        print('Please set it with: export DISCORD_BOT_TOKEN=your_token_here')
-        return
+        raise ValueError(
+            'DISCORD_BOT_TOKEN environment variable is not set.\n'
+            'Please set it with: export DISCORD_BOT_TOKEN=your_token_here'
+        )
     
-    bot.run(token)
+    try:
+        bot.run(token)
+    except discord.LoginFailure:
+        print('Error: Invalid Discord Bot Token')
+        print('Please check your token in the Discord Developer Portal')
+        raise
+    except Exception as e:
+        print(f'Error: Failed to run bot: {e}')
+        raise
 
 if __name__ == "__main__":
     main()
